@@ -162,35 +162,37 @@ jobs:
          destination: deployment-log.txt
 
 workflows:
-  version: 2.1
-  build-test-preview-and-deploy:
+  build_deploy_test:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - preview:
-          filters:
-            branches:
-              ignore: master
-          requires:
-            - build
-      - lighthouse:
-          filters:
-            branches:
-              ignore: master
-          requires:
-            - preview
-      - deploy:
-          filters:
-            branches:
-              only: master
-          requires:
-            - test
+      - pfe/gatsby-build-and-deploy:
+          build_tool: npm
+          deployment_path: docs
+          pre-steps:
+            - checkout
+            - run:
+                name: Import Functions and Variables
+                command: .circleci/scripts/set-env.sh && source $BASH_ENV
+            - run:
+                name: Install PHP
+                command: sudo apt-get install -y php-cli php-xml
+            - run:
+                name: Install Terminus
+                command: |
+                  php .circleci/scripts/terminus-installer.php
+            - run:
+                name: Import Tokens
+                command: gatsby-tokens
+            - run:
+                name: Import External Data
+                command: .circleci/scripts/import-external-data.sh
+          post-steps:
+            - run:
+                name: Check for merge conflicts
+                command: .circleci/scripts/merge_conflicts.sh
+            - run:
+                name: post deployment completion status
+                command: |
+                  curl "http://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/$CIRCLE_SHA1" -H "Authorization: token $GITHUB_TOKEN" -X POST -d '{"state": "success", "context": "pantheon/deployment", "description": "Deployment complete", "target_url": "http://'${TERMINUS_ENV}'--'${TERMINUS_SITE}'.my.pantheonfrontend.website/"}'
 
-# Below is CircleCI 1.0 Config Syntax that is still supported on CircleCI 2.0
-experimental:
-  notify:
-    branches:
-      only:
-        - master
+
+            # @todo, add back testing, lighthouse, master deployment etc.
