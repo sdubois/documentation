@@ -7,6 +7,7 @@ workflows:
       - pfe/gatsby-build-and-deploy:
           use-yarn: false
           deployment-path: docs
+          incremental-build: true
           pre-steps:
             - checkout
             - run:
