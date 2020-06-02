@@ -29,6 +29,8 @@ One of the most common reasons that email gets blocked is because it originates 
 
 4. The API key will only be displayed once. Copy the key and save it somewhere secure until you can apply it to the site.
 
+5. From the **Settings** menu, click **Sender Authentication**. SendGrid requires new accounts to verify their sender identity through either **Domain Authentication** or **Single Sender Verification**. A more detailed explanation of these options can be found in the [SendGrid documention](https://sendgrid.com/docs/for-developers/sending-email/sender-identity/). 
+
 ## Integrating Sendgrid With Drupal and WordPress
 
 Follow the procedure outlined below for your CMS:
